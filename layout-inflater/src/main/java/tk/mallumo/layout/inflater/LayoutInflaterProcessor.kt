@@ -4,8 +4,25 @@ import org.jetbrains.kotlin.ksp.processing.CodeGenerator
 import org.jetbrains.kotlin.ksp.processing.KSPLogger
 import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.processing.SymbolProcessor
-import tk.mallumo.bundled.CodeWriter
+import org.w3c.dom.Element
+import org.xml.sax.InputSource
 import java.io.File
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
+
+data class XmlNode(
+    val name: String,
+    val id: String = "",
+    val inflatedId: String = "",
+    val layout: String = "",
+    val childs: List<XmlNode> = listOf()
+)
+
+data class XmlInfo(
+    val name: String,
+    val path: String,
+    val node: XmlNode
+)
 
 class LayoutInflaterProcessor : SymbolProcessor {
 
@@ -18,15 +35,11 @@ class LayoutInflaterProcessor : SymbolProcessor {
 
     companion object {
 
-        /**
-         * root package for extensions, annotation
-         */
-        private const val bundledPackageName = "tk.mallumo.bundled"
+//        /**
+//         * root package for extensions, annotation
+//         */
+//        private const val bundledPackageName = "tk.mallumo.bundled"
 
-        /**
-         * qualifiedName name of generated annotation
-         */
-        private const val bundledAnnotationPath = "$bundledPackageName.Bundled"
 
         /**
          * error info, if is gradle file modified
@@ -51,25 +64,74 @@ class LayoutInflaterProcessor : SymbolProcessor {
         )
     }
 
+    // https://developer.android.com/training/improving-layouts/loading-ondemand
     override fun process(resolver: Resolver) {
         val resourceDirectory = File(options["in"] ?: throw RuntimeException(errProjectInDir))
         if (!resourceDirectory.exists()) throw RuntimeException("project resources directory not exists (${resourceDirectory.absolutePath})")
         val items = resourceDirectory.listFiles()
             ?.asSequence()
             ?.filter { it.isDirectory && it.name.startsWith("layout") }
-            ?.map { it.listFiles()?.filter { it.isFile && it.name.endsWith(".xml") } }
+            ?.map { file -> file.listFiles()?.filter { it.isFile && it.name.endsWith(".xml") } }
             ?.filterNotNull()
             ?.flatten()
             ?.map { generateSource(it) }
             ?: sequenceOf()
-        File("/tmp/___/test").appendText("\nNEW\n${items.joinToString("\n")}")
+        File("/tmp/___/test").writeText("\nNEW\n${items.joinToString("\n")}")
     }
 
-    private fun generateSource(it: File): String {
-        return it.absolutePath
+    private fun generateSource(it: File): XmlInfo {
+        return buildXmlInfo(it)
     }
 
     override fun finish() {
 
+    }
+
+
+    private fun buildXmlInfo(resFile: File): XmlInfo {
+        return XmlInfo(
+            resFile.name.split(".").first(),
+            resFile.absolutePath,
+            buildXmlNode(resFile)
+        )
+    }
+
+    private fun buildXmlNode(resFile: File): XmlNode {
+        val doc = DocumentBuilderFactory.newInstance()
+            .newDocumentBuilder()
+            .parse(InputSource(StringReader(resFile.readText())))
+
+        return doc.documentElement.xmlNode
+    }
+
+    private val Element.xmlNode
+        get() = XmlNode(
+            tagName,
+            id,
+            inflatedId,
+            layout,
+            childes
+        )
+
+    private val Element.childes: List<XmlNode>
+        get() {
+            return if (!hasChildNodes()) {
+                listOf()
+            } else {
+                (0 until childNodes.length)
+                    .map { index -> childNodes.item(index) }
+                    .filterIsInstance<Element>()
+                    .map { it.xmlNode }
+            }
+        }
+
+    private val Element.id: String get() = attr("android:id")
+    private val Element.inflatedId: String get() = attr("android:inflatedId")
+
+    private val Element.layout: String get() = attr("layout")
+
+    private fun Element.attr(name: String): String {
+        return if (!hasAttribute(name)) ""
+        else getAttribute(name).split("/").last()
     }
 }

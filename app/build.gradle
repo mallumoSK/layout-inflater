@@ -48,4 +48,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     ksp project(":layout-inflater")
 }
-ksp.arg("DO-NOT-MODIFY-THIS-ROW", "1602975055677")
+ksp.arg("DO-NOT-MODIFY-THIS-ROW", "1602977569460")

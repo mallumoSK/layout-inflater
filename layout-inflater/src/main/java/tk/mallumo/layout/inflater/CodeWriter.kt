@@ -1,4 +1,6 @@
-package tk.mallumo.bundled
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
+package tk.mallumo.layout.inflater
 
 import java.io.File
 
