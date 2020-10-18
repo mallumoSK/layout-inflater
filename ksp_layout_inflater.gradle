@@ -8,8 +8,10 @@ repositories {
 
 android.sourceSets.main.java.srcDirs += ['src/main/ksp']
 
-ksp.arg("out", "${projectDir.absolutePath}/src/main/ksp")
-ksp.arg("in", "${projectDir.absolutePath}/src/main/res")
+ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/src/main/ksp")
+ksp.arg("LayoutInflaterResIn", "${projectDir.absolutePath}/src/main/res")
+ksp.arg("LayoutInflaterAppPackage", android.defaultConfig.applicationId)
+ksp.arg("LayoutInflaterFlow", "true")
 
 repositories {
     maven {

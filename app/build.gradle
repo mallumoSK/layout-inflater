@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+//    id 'kotlin-kapt'
     id 'kotlin-ksp' version "$ksp_version"
 }
 
@@ -20,14 +21,22 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -36,16 +45,23 @@ android {
 apply from: '../ksp_layout_inflater.gradle'
 
 
+
+
 dependencies {
 
+    def livecicle = '2.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation "androidx.lifecycle:lifecycle-extensions:$livecicle"
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     ksp project(":layout-inflater")
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+
 }
-ksp.arg("DO-NOT-MODIFY-THIS-ROW", "1602977569460")
+ksp.arg("DO-NOT-MODIFY-THIS-ROW", "1603058404444")

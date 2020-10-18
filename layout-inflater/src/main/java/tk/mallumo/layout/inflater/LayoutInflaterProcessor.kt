@@ -10,19 +10,6 @@ import java.io.File
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
 
-data class XmlNode(
-    val name: String,
-    val id: String = "",
-    val inflatedId: String = "",
-    val layout: String = "",
-    val childs: List<XmlNode> = listOf()
-)
-
-data class XmlInfo(
-    val name: String,
-    val path: String,
-    val node: XmlNode
-)
 
 class LayoutInflaterProcessor : SymbolProcessor {
 
@@ -32,6 +19,8 @@ class LayoutInflaterProcessor : SymbolProcessor {
     private lateinit var codeWriter: CodeWriter
 
     private lateinit var options: Map<String, String>
+
+    private lateinit var packageName: String
 
     companion object {
 
@@ -45,9 +34,13 @@ class LayoutInflaterProcessor : SymbolProcessor {
          * error info, if is gradle file modified
          */
         private const val errProjectOutDir =
-            "Inside yours gradle.build must be defined constant (output): 'ksp.arg(\"out\", \"\${projectDir.absolutePath}/src/main/ksp\")'"
+            "Inside yours gradle.build must be defined constant (output): 'ksp.arg(\"LayoutInflaterSrcOut\", \"\${projectDir.absolutePath}/src/main/ksp\")'"
+
         private const val errProjectInDir =
-            "Inside yours gradle.build must be defined constant (input): 'ksp.arg(\"in\", \"\${projectDir.absolutePath}/src/main/res\")'"
+            "Inside yours gradle.build must be defined constant (input): 'ksp.arg(\"LayoutInflaterResIn\", \"\${projectDir.absolutePath}/src/main/res\")'"
+
+        private const val errProjectPackageName =
+            "Inside yours gradle.build must be defined constant (app package name): etc: 'ksp.arg(\"LayoutInflaterAppPackage\", \"com.example.sampleapplication\")'"
 
     }
 
@@ -58,57 +51,83 @@ class LayoutInflaterProcessor : SymbolProcessor {
         logger: KSPLogger
     ) {
         this.options = options
+        this.packageName =
+            options["LayoutInflaterAppPackage"] ?: throw RuntimeException(errProjectPackageName)
         this.codeWriter = CodeWriter(
-            directory = File(options["out"] ?: throw RuntimeException(errProjectOutDir)),
+            directory = File(
+                options["LayoutInflaterSrcOut"] ?: throw RuntimeException(
+                    errProjectOutDir
+                )
+            ),
             rootPackage = "tk.mallumo.layout.inflater"
         )
     }
 
     // https://developer.android.com/training/improving-layouts/loading-ondemand
     override fun process(resolver: Resolver) {
-        val resourceDirectory = File(options["in"] ?: throw RuntimeException(errProjectInDir))
+        val resourceDirectory =
+            File(options["LayoutInflaterResIn"] ?: throw RuntimeException(errProjectInDir))
         if (!resourceDirectory.exists()) throw RuntimeException("project resources directory not exists (${resourceDirectory.absolutePath})")
+        val isFlowEnabled = (options["LayoutInflaterFlow"] ?: "true").toBoolean()
         val items = resourceDirectory.listFiles()
             ?.asSequence()
             ?.filter { it.isDirectory && it.name.startsWith("layout") }
             ?.map { file -> file.listFiles()?.filter { it.isFile && it.name.endsWith(".xml") } }
             ?.filterNotNull()
             ?.flatten()
-            ?.map { generateSource(it) }
+            ?.map { ClassBuilder.buildDef(packageName, it.xmlInfo, isFlowEnabled) }
+            ?.distinctBy { it.fileName }
             ?: sequenceOf()
-        File("/tmp/___/test").writeText("\nNEW\n${items.joinToString("\n")}")
+
+        ClassBuilder.getImplLayoutInflaterDef().also {
+            codeWriter.add(
+                "tk.mallumo.layout.inflater",
+                it.fileName,
+                it.imports
+            ) { append(it.source) }
+        }
+
+        ClassBuilder.getLazyInflaters(items).also {
+            codeWriter.add(
+                "tk.mallumo.layout.inflater",
+                it.fileName,
+                it.imports
+            ) { append(it.source) }
+        }
+
+        items.forEach {
+            codeWriter.add(
+                "tk.mallumo.layout.inflater",
+                it.fileName,
+                it.imports
+            ) { append(it.source) }
+        }
     }
 
-    private fun generateSource(it: File): XmlInfo {
-        return buildXmlInfo(it)
-    }
 
     override fun finish() {
-
+        codeWriter.write(true)
     }
 
-
-    private fun buildXmlInfo(resFile: File): XmlInfo {
-        return XmlInfo(
-            resFile.name.split(".").first(),
-            resFile.absolutePath,
-            buildXmlNode(resFile)
+    private val File.xmlInfo: XmlInfo
+        get() = XmlInfo(
+            name.split(".").first(),
+            absolutePath,
+            xmlNode
         )
-    }
 
-    private fun buildXmlNode(resFile: File): XmlNode {
-        val doc = DocumentBuilderFactory.newInstance()
+    private val File.xmlNode: XmlNode
+        get() = DocumentBuilderFactory.newInstance()
             .newDocumentBuilder()
-            .parse(InputSource(StringReader(resFile.readText())))
+            .parse(InputSource(StringReader(readText())))
+            .documentElement
+            .xmlNode
 
-        return doc.documentElement.xmlNode
-    }
 
     private val Element.xmlNode
         get() = XmlNode(
             tagName,
             id,
-            inflatedId,
             layout,
             childes
         )
@@ -126,7 +145,6 @@ class LayoutInflaterProcessor : SymbolProcessor {
         }
 
     private val Element.id: String get() = attr("android:id")
-    private val Element.inflatedId: String get() = attr("android:inflatedId")
 
     private val Element.layout: String get() = attr("layout")
 
