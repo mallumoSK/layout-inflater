@@ -54,6 +54,18 @@ object ImplLayoutUtils {
         attachToRoot: Boolean,
         lifecycle: Lifecycle
     ): T = when (clazz) {
+        LayoutSimpleLayout2::class -> LayoutSimpleLayout2.inflate(
+            layoutInflater,
+            root,
+            attachToRoot,
+            lifecycle
+        )
+        LayoutSimpleLayout::class -> LayoutSimpleLayout.inflate(
+            layoutInflater,
+            root,
+            attachToRoot,
+            lifecycle
+        )
         LayoutInc::class -> LayoutInc.inflate(layoutInflater, root, attachToRoot, lifecycle)
         LayoutActivityMain::class -> LayoutActivityMain.inflate(
             layoutInflater,
