@@ -1,9 +1,4 @@
 
-dependencies {
-//    ksp project(":layout-inflater")
-    ksp project("tk.mallumo:layout-inflater:${ext.layout_inflater_version}")
-}
-
 ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/src/main/ksp")
 ksp.arg("LayoutInflaterResIn", "${projectDir.absolutePath}/src/main/res")
 ksp.arg("LayoutInflaterAppPackage", android.defaultConfig.applicationId)

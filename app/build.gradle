@@ -44,7 +44,12 @@ android {
 
 apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-config.gradle'
 apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
-
+dependencies {
+    ksp project("tk.mallumo:layout-inflater:0.0.1")
+}
+//dependencies {
+//    ksp project(":layout-inflater")
+//}
 //apply from: '../ksp-config.gradle'
 //apply from: '../ksp-layout-inflater.gradle'
 
