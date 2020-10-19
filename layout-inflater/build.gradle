@@ -4,6 +4,9 @@ plugins {
     id "org.jetbrains.dokka" version "$dokka_version"
 }
 
+group 'tk.mallumo'
+version "$layout_inflater_version"
+
 apply from: "../secure.gradle"
 
 java {
@@ -15,5 +18,4 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-symbol-processing-api:$ksp_version"
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:$dokka_version")
-
 }
