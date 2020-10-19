@@ -1,6 +1,7 @@
 
 dependencies {
-    ksp project(":layout-inflater")
+//    ksp project(":layout-inflater")
+    ksp project("tk.mallumo:layout-inflater:${ext.layout_inflater_version}")
 }
 
 ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/src/main/ksp")

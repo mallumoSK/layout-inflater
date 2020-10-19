@@ -42,8 +42,11 @@ android {
     }
 }
 
-apply from: '../ksp-config.gradle'
-apply from: '../ksp-layout-inflater.gradle'
+apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-config.gradle'
+apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
+
+//apply from: '../ksp-config.gradle'
+//apply from: '../ksp-layout-inflater.gradle'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
