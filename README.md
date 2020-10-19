@@ -3,7 +3,7 @@
 ![https://mallumo.jfrog.io/artifactory/gradle-dev-local/tk/mallumo/layout-inflater/](https://img.shields.io/maven-metadata/v?color=%234caf50&metadataUrl=https%3A%2F%2Fmallumo.jfrog.io%2Fartifactory%2Fgradle-dev-local%2Ftk%2Fmallumo%2Flayout-inflater%2Fmaven-metadata.xml&style=for-the-badge "Version")
 
 ## About
-This library / simbolic processor is alternative to android ![https://developer.android.com/topic/libraries/view-binding]("viewBinding").
+This library / simbolic processor is alternative to android [view-binding](https://developer.android.com/topic/libraries/view-binding).
 
 ## Example of usage
 #### XML LAYOUT simple_layout.xml
@@ -80,7 +80,7 @@ class SimpleFragment : Fragment() {
 
 ```
 P.S: I do not like LiveData because of default value is null, 
-in example obowe is used kotlinx.coroutines.flow.MutableStateFlow
+in example above is used kotlinx.coroutines.flow.MutableStateFlow
 
 ## WARNING
 This library/processor is ussing [Kotlin Symbol Processor](https://github.com/android/kotlin/tree/ksp/libraries/tools/kotlin-symbol-processing-api).
@@ -110,29 +110,26 @@ Usage in production in on your risk.
 
 ## How to implement
 
-1. define library version (**build.gradle**)
-```groovy
-buildscript {
-    ext.layout_inflater_version = 'x.y.z'
-}
-```
-2. add plugin (**build.gradle**)
+
+1. add plugin (**build.gradle**)
 ```groovy
 plugins {
     id("kotlin-ksp") version "1.4.0-dev-experimental-20200914"
 }
-```
-
-3. apply dependency (**build.gradle**)
-```groovy
+//...
+android{
+    //...
+}
+//...
 apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-config.gradle'
 apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
+
 dependencies {
     ksp implementation("tk.mallumo:layout-inflater:x.y.z")
 }
 ```
 
-4. add pluginResolutionStrategy On top of file **settings.gradle** add this:
+2. add pluginResolutionStrategy On top of file **settings.gradle** add this:
 ```groovy
 pluginManagement {
     resolutionStrategy {
@@ -158,7 +155,7 @@ pluginManagement {
 }
 ```
 
-5. JOB DONE :)
+3. JOB DONE :)
 
 # More info will bee soon currently is library in development
 
