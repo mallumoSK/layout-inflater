@@ -249,6 +249,12 @@ ${
                         inflaterName = layout.layoutFileName
                     )
                 }
+                name == "WebView" -> {
+                    LayoutInflaterField(
+                        id = id,
+                        inflaterName = "android.webkit.WebView"
+                    )
+                }
                 name in arrayOf(
                     "ViewStub",
                     "TextureView",
