@@ -252,7 +252,7 @@ ${
                 name == "WebView" -> {
                     LayoutInflaterField(
                         id = id,
-                        inflaterName = "android.webkit.WebView"
+                        viewQualifiedName = "android.webkit.WebView"
                     )
                 }
                 name in arrayOf(
