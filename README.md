@@ -6,6 +6,7 @@
 This library / simbolic processor is alternative to android [view-binding](https://developer.android.com/topic/libraries/view-binding).
 
 * in generated sources is **NOT used** reflection
+* you can pass ``minifyEnabled = true`` withoud aditional proguard changes :)
 * you can use automatic releasing resources (layouts, views) see  [lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle)
   * by extension function lazyLayout in fragment and activity
   * by static call inflate on generated class with last parameter lifecycle
@@ -112,7 +113,7 @@ class SimpleFragment : Fragment() {
 **P.S:** I do not like LiveData **because**, **default** value is **null**,
 in example above is used kotlinx.coroutines.flow.MutableStateFlow
 If you do not want using coroutines,
-just pass ``ksp.arg("LayoutInflaterFlow", "false")`` on bottom of ``gradle.build``
+just pass ``ksp.arg("LayoutInflaterFlow", "false")`` on bottom of ``build.gradle``
 
 
 ## WARNING
