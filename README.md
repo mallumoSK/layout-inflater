@@ -5,7 +5,50 @@
 ## About
 This library / simbolic processor is alternative to android [view-binding](https://developer.android.com/topic/libraries/view-binding).
 
+* in generated sources is **NOT used** reflection
+* you can use automatic releasing resources (layouts, views) see  [lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle)
+  * by extension function lazyLayout in fragment and activity
+  * by static call inflate on generated class with last parameter lifecycle
+  * by inline call ImplLayoutInflater.inflate with last parameter lifecycle
+  * by static call ImplLayoutUtils.inflate with last parameter lifecycle
+  * manual call release() on generated class
+* in resource layouts freely you can use
+  * platform layouts/views
+  * custom layouts/views
+  * included layout
+  * ViewStub
+* xml **merge** tag is **not** implement
+
 ## Example of usage
+
+#### XML LAYOUT simple_layout_2.xml
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="template" />
+```
+
+### 1. Simple Example
+```kotlin
+class SimpleFragment : Fragment() {
+
+    val layout by lazyLayout<LayoutSimpleLayout2> {
+        textView.text = "Replaced text"
+    }
+    
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? = layout.root
+}
+```
+
+### 2. Complex Example
+
 #### XML LAYOUT simple_layout.xml
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -23,26 +66,12 @@ This library / simbolic processor is alternative to android [view-binding](https
     <include
         android:id="@+id/textTemplate0"
         layout="@layout/simple_layout_2" />
-    
+
     <include
         android:id="@+id/textTemplate1"
         layout="@layout/simple_layout_2" />
 </LinearLayout>
 ```
-#### XML LAYOUT simple_layout_2.xml
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/textView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="template" />
-```
-
-#### Usage in fragment
-* value **layout** is automatic attached to lifecycle
-* whole content of **layout** is automatic released after fragment destroyed
-
 
 ```kotlin
 
@@ -54,7 +83,7 @@ class SimpleFragment : Fragment() {
 
     val viewModel by viewModels<SimpleVM>()
 
-    val layout by lazyLayout<LayoutSimpleLayout> { 
+    val layout by lazyLayout<LayoutSimpleLayout> {
         veverka.text = "Replaced text"
         textTemplate0.textView.text = "Included layout"
         flow(viewModel.flowText) { textTemplate1.textView.text = it }
@@ -69,18 +98,22 @@ class SimpleFragment : Fragment() {
             }
         }
     }
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = layout.root
-    
+
 }
 
 ```
-P.S: I do not like LiveData because of default value is null, 
+
+**P.S:** I do not like LiveData **because**, **default** value is **null**,
 in example above is used kotlinx.coroutines.flow.MutableStateFlow
+If you do not want using coroutines,
+just pass ``ksp.arg("LayoutInflaterFlow", "false")`` on bottom of ``gradle.build``
+
 
 ## WARNING
 This library/processor is ussing [Kotlin Symbol Processor](https://github.com/android/kotlin/tree/ksp/libraries/tools/kotlin-symbol-processing-api).
@@ -109,7 +142,6 @@ Usage in production in on your risk.
 
 
 ## How to implement
-
 
 1. add plugin (**build.gradle**)
 ```groovy
@@ -157,6 +189,6 @@ pluginManagement {
 
 3. JOB DONE :)
 
-# More info will bee soon currently is library in development
+## More info will bee soon currently is library in development
 
 
