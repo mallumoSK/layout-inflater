@@ -104,7 +104,7 @@ Usage in production in on your risk.
 * after layout changes sometimes compiller throw exception, do not wory, run it again and everithing will be fixed automaticvaly :)
 
 ## When are sources generated:
-* you can manually ./gradlew :app:generateLayoutInflater
+* you can manually ./gradlew :app:build
 * automatic when project is building
 
 
