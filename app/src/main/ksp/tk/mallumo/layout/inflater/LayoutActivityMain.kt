@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.collect
 
 
 @Suppress("unused", "SpellCheckingInspection", "RemoveRedundantQualifierName", "PropertyName")
-class LayoutActivityMain private constructor(lifecycle: Lifecycle?) :
-    ImplLayoutInflater(lifecycle) {
+class LayoutActivityMain private constructor() : ImplLayoutInflater() {
+
+    override val layoutResourceId: Int = tk.mallumo.layout.inflater.R.layout.activity_main
 
     companion object {
 
@@ -22,18 +23,12 @@ class LayoutActivityMain private constructor(lifecycle: Lifecycle?) :
             root: ViewGroup? = null,
             attachToRoot: Boolean = false,
             lifecycle: Lifecycle? = null
-        ) = LayoutActivityMain(lifecycle).apply {
-            init(
-                inflater.inflate(
-                    tk.mallumo.layout.inflater.R.layout.activity_main,
-                    root,
-                    attachToRoot
-                )
-            )
+        ) = LayoutActivityMain().apply {
+            init(inflater.inflate(layoutResourceId, root, attachToRoot), lifecycle)
         }
 
-        fun bind(root: View, lifecycle: Lifecycle? = null) = LayoutActivityMain(lifecycle).apply {
-            init(root)
+        fun bind(root: View, lifecycle: Lifecycle? = null) = LayoutActivityMain().apply {
+            init(root, lifecycle)
         }
     }
 

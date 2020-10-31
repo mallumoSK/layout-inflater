@@ -56,12 +56,11 @@ object ImplLayoutUtils{
         layoutInflater: LayoutInflater,
         root: ViewGroup?,
         attachToRoot: Boolean,
-        lifecycle: Lifecycle): T = when (clazz) {
+        lifecycle: Lifecycle?): T = when (clazz) {
 ${items.joinToString("\n") { it.inflationRow }}
         else -> throw RuntimeException("Undefined layout => ${"$"}{clazz.qualifiedName}}")
     } as T    
-}
-    """
+}"""
     )
 
     private val ClassDef.inflationRow: String
@@ -78,22 +77,38 @@ ${items.joinToString("\n") { it.inflationRow }}
             "androidx.lifecycle.Lifecycle",
             "androidx.lifecycle.LifecycleObserver",
             "androidx.lifecycle.OnLifecycleEvent",
-            "androidx.lifecycle.Lifecycle"
+            "androidx.lifecycle.Lifecycle",
+            "android.view.LayoutInflater",
+            "android.view.ViewGroup"
         ),
         """
-@Suppress("unused", "MemberVisibilityCanBePrivate", "LeakingThis")
-abstract class ImplLayoutInflater(protected var lifecycle: Lifecycle?) : LifecycleObserver {
+@Suppress("unused", "MemberVisibilityCanBePrivate")
+abstract class ImplLayoutInflater : LifecycleObserver {
 
-    init {
-        lifecycle?.addObserver(this)
+    protected var lifecycle: Lifecycle? = null
+
+    companion object {
+        inline fun <reified T : ImplLayoutInflater> inflate(
+            inflater: LayoutInflater,
+            root: ViewGroup? = null,
+            attachToRoot: Boolean = false,
+            lifecycle: Lifecycle? = null
+        ): T = ImplLayoutUtils.inflate(T::class, inflater, root, attachToRoot, lifecycle)
     }
+
+    abstract val layoutResourceId: Int
 
     var root: View? = null
         protected set
 
-    protected var layouts = arrayListOf<Any>()
+    protected var layouts = arrayListOf<Any?>()
 
-    protected fun init(content: View) {
+    protected fun init(content: View, lifecycle: Lifecycle?) {
+        release()
+
+        this.lifecycle = lifecycle
+        this.lifecycle?.addObserver(this)
+
         root = content
         setup(root!!)
     }
@@ -102,13 +117,18 @@ abstract class ImplLayoutInflater(protected var lifecycle: Lifecycle?) : Lifecyc
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun release() {
+        layouts.forEachIndexed { index, any ->
+            if (any is ImplLayoutInflater) {
+                any.release()
+            }
+            layouts[index] = null
+        }
         layouts.clear()
         root = null
         lifecycle?.removeObserver(this)
         lifecycle = null
     }
-}
-    """
+}"""
     )
 
 
@@ -137,10 +157,11 @@ abstract class ImplLayoutInflater(protected var lifecycle: Lifecycle?) : Lifecyc
                 } else it
             },
             source = """
-@Suppress("unused","SpellCheckingInspection", "RemoveRedundantQualifierName", "PropertyName")
-class $name private constructor(lifecycle: Lifecycle?) :
-    ImplLayoutInflater(lifecycle) {
+@Suppress("unused", "SpellCheckingInspection", "RemoveRedundantQualifierName", "PropertyName")
+class $name private constructor() : ImplLayoutInflater() {
 
+    override val layoutResourceId: Int = ${packageName}.R.layout.${xmlInfo.name}
+    
     companion object {
 
         fun inflate(
@@ -148,12 +169,12 @@ class $name private constructor(lifecycle: Lifecycle?) :
             root: ViewGroup? = null,
             attachToRoot: Boolean = false,
             lifecycle: Lifecycle? = null
-        ) = $name(lifecycle).apply {
-            init(inflater.inflate(${packageName}.R.layout.${xmlInfo.name}, root, attachToRoot))
+        ) = $name().apply {
+            init(inflater.inflate(layoutResourceId, root, attachToRoot), lifecycle)
         }
 
-        fun bind(root: View, lifecycle: Lifecycle? = null) = $name(lifecycle).apply {
-            init(root)
+        fun bind(root: View, lifecycle: Lifecycle? = null) = $name().apply {
+            init(root, lifecycle)
         }
     }
     
@@ -182,7 +203,7 @@ ${
 
     private val XmlInfo.inflaterFields: List<LayoutInflaterField>
         get() = inflaterFieldsTree(node).also { origin ->
-            val usedIds = arrayListOf("layouts", "root", "lifecycle")
+            val usedIds = arrayListOf("layouts", "root", "lifecycle", "layoutResourceId")
             val allPropertyNames = origin.map { it.propertyName }
                 .plus(usedIds)
                 .let { arrayListOf<String>().apply { addAll(it) } }

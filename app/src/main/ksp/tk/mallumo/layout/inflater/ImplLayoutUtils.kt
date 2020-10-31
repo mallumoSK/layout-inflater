@@ -52,7 +52,7 @@ object ImplLayoutUtils {
         layoutInflater: LayoutInflater,
         root: ViewGroup?,
         attachToRoot: Boolean,
-        lifecycle: Lifecycle
+        lifecycle: Lifecycle?
     ): T = when (clazz) {
         LayoutSimpleLayout2::class -> LayoutSimpleLayout2.inflate(
             layoutInflater,
@@ -76,4 +76,3 @@ object ImplLayoutUtils {
         else -> throw RuntimeException("Undefined layout => ${clazz.qualifiedName}}")
     } as T
 }
-    
