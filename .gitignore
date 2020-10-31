@@ -86,3 +86,4 @@ lint/tmp/
 /.idea/
 /gradle/wrapper/
 /secure.gradle
+/app/src/main/ksp/
