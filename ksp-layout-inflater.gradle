@@ -3,32 +3,3 @@ ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/src/main/ksp")
 ksp.arg("LayoutInflaterResIn", "${projectDir.absolutePath}/src/main/res")
 ksp.arg("LayoutInflaterAppPackage", android.defaultConfig.applicationId)
 ksp.arg("LayoutInflaterFlow", "true")
-
-//task generateLayoutInflater() {
-//    group = "ksp"
-//    File gradleFile = new File(projectDir, "/build.gradle")
-//    doFirst {
-//        BufferedReader reader = new BufferedReader(new FileReader(gradleFile))
-//        List<String> lines = reader.readLines()
-//        reader.close()
-//        StringBuilder builder = new StringBuilder()
-//
-//        for (i in 0..<lines.size()) {
-//            if (!lines.get(i).trim().startsWith("ksp.arg(\"DO-NOT-MODIFY-THIS-ROW\",")) {
-//                builder.append(lines.get(i))
-//                builder.append("\n")
-//            }
-//        }
-//
-//        builder.append("ksp.arg(\"DO-NOT-MODIFY-THIS-ROW\", \"${System.currentTimeMillis()}\")")
-//
-//        BufferedWriter writer = new BufferedWriter(new FileWriter(gradleFile, false))
-//        writer.write(builder.toString())
-//        writer.flush()
-//        writer.close()
-//    }
-//    dependsOn("build")
-//    doLast {
-//        println("LayoutInflater FIN")
-//    }
-//}
