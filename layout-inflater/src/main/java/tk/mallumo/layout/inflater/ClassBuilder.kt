@@ -186,7 +186,7 @@ ${fields.joinToString("\n") { it.fieldCreator(packageName) }}
 
 ${
                 if (isFlowEnabled) """
-    fun <T : Any> flow(flow: Flow<T>, body: $name.(T) -> Unit) {
+    fun <T : Any> flowUI(flow: Flow<T>, body: $name.(T) -> Unit) {
        lifecycle?.coroutineScope?.launchWhenResumed {
            flow.collect {
                 body(this@$name, it)

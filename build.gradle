@@ -3,7 +3,7 @@ buildscript {
 
     ext.kotlin_version = "1.4.10"
     ext.dokka_version = '1.4.0'
-    ext.layout_inflater_version = '0.0.4'
+    ext.layout_inflater_version = '0.0.5'
     ext.ksp_version = '1.4.0-dev-experimental-20200914'
 
     repositories {
