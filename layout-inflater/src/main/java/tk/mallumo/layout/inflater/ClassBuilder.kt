@@ -144,7 +144,9 @@ abstract class ImplLayoutInflater : LifecycleObserver {
                 "android.view.LayoutInflater",
                 "android.view.View",
                 "android.view.ViewGroup",
-                "androidx.lifecycle.Lifecycle"
+                "androidx.lifecycle.Lifecycle",
+                "kotlinx.coroutines.Dispatchers",
+                "kotlinx.coroutines.launch"
             ).let {
                 if (isFlowEnabled) {
                     it.plus(
@@ -187,7 +189,7 @@ ${fields.joinToString("\n") { it.fieldCreator(packageName) }}
 ${
                 if (isFlowEnabled) """
     fun <T : Any> flowUI(flow: Flow<T>, body: $name.(T) -> Unit) {
-       lifecycle?.coroutineScope?.launchWhenResumed {
+       lifecycle?.coroutineScope?.launch(Dispatchers.Main) {
            flow.collect {
                 body(this@$name, it)
            }
