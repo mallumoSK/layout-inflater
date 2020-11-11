@@ -158,7 +158,7 @@ apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ks
 apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
 
 dependencies {
-    ksp implementation("tk.mallumo:layout-inflater:x.y.z")
+    ksp "tk.mallumo:layout-inflater:x.y.z"
 }
 ```
 
