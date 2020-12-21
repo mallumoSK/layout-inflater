@@ -1,5 +1,7 @@
 package tk.mallumo.layout.inflater
 
+import java.io.File
+
 
 object ClassBuilder {
 
@@ -132,13 +134,14 @@ abstract class ImplLayoutInflater : LifecycleObserver {
     )
 
 
-    fun buildDef(packageName: String, xmlInfo: XmlInfo, isFlowEnabled: Boolean): ClassDef {
+    fun buildDef(file:File, packageName: String, xmlInfo: XmlInfo, isFlowEnabled: Boolean): ClassDef {
 
         val fields = xmlInfo.inflaterFields
 
         val name = xmlInfo.name.layoutFileName
         return ClassDef(
-            "$name.kt",
+            contentOrigin = file.readText(),
+            fileName = "$name.kt",
             xmlInfo = xmlInfo,
             imports = listOf(
                 "android.view.LayoutInflater",
@@ -252,6 +255,7 @@ ${
         }
 
 
+    fun generateLayoutFileName(file: File):String = file.name.split(".").first().layoutFileName
     private val String.layoutFileName
         get() = split("_")
             .joinToString("") {

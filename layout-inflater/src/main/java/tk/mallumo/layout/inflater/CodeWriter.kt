@@ -3,6 +3,7 @@
 package tk.mallumo.layout.inflater
 
 import java.io.File
+import java.security.MessageDigest
 
 /**
  * Class provides writing generated classes,logs, ... into files
@@ -68,8 +69,21 @@ class CodeWriter(
          * @see BuilderEntry.file
          */
         fun write(kspDir: File) {
-            file(kspDir).writeText(fileSource)
+            val hash = hashString(fileSource)
+            file(kspDir).apply {
+                if (!exists() || readLine() != "//HASH $hash") {
+                    writeText("//HASH ${hash}\n\n${fileSource}")
+                }
+            }
+
         }
+
+        private fun hashString(input: String, type: String = "SHA-1") =
+            MessageDigest
+                .getInstance(type)
+                .digest(input.toByteArray())
+                .map { String.format("%02X", it) }
+                .joinToString(separator = "")
 
         /**
          * Join whole sources into one string
@@ -144,5 +158,9 @@ $builder"""
         generated.forEach { entry ->
             entry.write(directory)
         }
+    }
+
+    fun filesInDirectory(): Array<File> {
+       return File("${directory.absolutePath}/${rootPackage.replace(".", "/")}").listFiles()?: arrayOf()
     }
 }

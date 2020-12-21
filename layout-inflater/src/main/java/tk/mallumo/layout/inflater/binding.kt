@@ -25,4 +25,5 @@ data class ClassDef(
     val imports: List<String>,
     val source: String,
     val xmlInfo: XmlInfo = XmlInfo("", ""),
+    val contentOrigin:String = ""
 )

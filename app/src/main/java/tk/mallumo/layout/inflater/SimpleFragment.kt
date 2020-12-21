@@ -23,7 +23,7 @@ class SimpleFragment : Fragment() {
     val layout by lazyLayout<LayoutSimpleLayout> {
         veverka.text = "Replaced text"
         textTemplate0.textView.text = "Included layout"
-        flow(viewModel.flowText) { textTemplate1.textView.text = it }
+        flowUI(viewModel.flowText) { textTemplate1.textView.text = it }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

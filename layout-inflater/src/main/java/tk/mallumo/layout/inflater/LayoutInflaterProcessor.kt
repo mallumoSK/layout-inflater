@@ -6,8 +6,10 @@ import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.processing.SymbolProcessor
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
+import tk.mallumo.layout.inflater.LayoutInflaterProcessor.HashUtils.sha1
 import java.io.File
 import java.io.StringReader
+import java.security.MessageDigest
 import javax.xml.parsers.DocumentBuilderFactory
 
 
@@ -69,44 +71,128 @@ class LayoutInflaterProcessor : SymbolProcessor {
             File(options["LayoutInflaterResIn"] ?: throw RuntimeException(errProjectInDir))
         if (!resourceDirectory.exists()) throw RuntimeException("project resources directory not exists (${resourceDirectory.absolutePath})")
         val isFlowEnabled = (options["LayoutInflaterFlow"] ?: "true").toBoolean()
-        val items = resourceDirectory.listFiles()
+
+        val sourceFiles = resourceDirectory.listFiles()
             ?.asSequence()
             ?.filter { it.isDirectory && it.name.startsWith("layout") }
             ?.map { file -> file.listFiles()?.filter { it.isFile && it.name.endsWith(".xml") } }
             ?.filterNotNull()
             ?.flatten()
-            ?.map { ClassBuilder.buildDef(packageName, it.xmlInfo, isFlowEnabled) }
-            ?.distinctBy { it.fileName }
+            ?.filterNotNull()
             ?: sequenceOf()
 
-        ClassBuilder.getImplLayoutInflaterDef().also {
-            codeWriter.add(
-                "tk.mallumo.layout.inflater",
-                it.fileName,
-                it.imports
-            ) { append(it.source) }
-        }
 
-        ClassBuilder.getLazyInflaters(items).also {
-            codeWriter.add(
-                "tk.mallumo.layout.inflater",
-                it.fileName,
-                it.imports
-            ) { append(it.source) }
-        }
 
-        items.forEach {
-            codeWriter.add(
-                "tk.mallumo.layout.inflater",
-                it.fileName,
-                it.imports
-            ) { append(it.source) }
+        if (structureChanged(sourceFiles)) {
+
+            val items = sourceFiles
+                .map { ClassBuilder.buildDef(it, packageName, it.xmlInfo, isFlowEnabled) }
+                .distinctBy { it.fileName }
+
+            ClassBuilder.getImplLayoutInflaterDef().also {
+                codeWriter.add(
+                    "tk.mallumo.layout.inflater",
+                    it.fileName,
+                    it.imports
+                ) { append(it.source) }
+            }
+
+            ClassBuilder.getLazyInflaters(items).also {
+                codeWriter.add(
+                    "tk.mallumo.layout.inflater",
+                    it.fileName,
+                    it.imports
+                ) { append(it.source) }
+            }
+
+            items.forEach {
+                codeWriter.add(
+                    "tk.mallumo.layout.inflater",
+                    it.fileName,
+                    it.imports
+                ) {
+                    append("//HASH-XML ${it.contentOrigin.sha1()}")
+                    appendLine()
+                    append(it.source)
+                }
+            }
+//            removeOutdated(items)
+            codeWriter.write(deleteOld = true)
+            File("/tmp/___/output").appendText("\n regenerate")
+        } else {
+            File("/tmp/___/output").appendText("\n no changes")
+        }
+    }
+
+    private fun structureChanged(sourceFiles: Sequence<File>): Boolean {
+        val generated = codeWriter.filesInDirectory()
+        val generatedFiles = generated
+            .associate { ClassBuilder.generateLayoutFileName(it) to it.readLines().firstOrNull { it.startsWith("//HASH-XML ") } }
+
+        if (generatedFiles.size != sourceFiles.count() + 2) return true
+
+        val sourcesMap = sourceFiles.associate {
+            ClassBuilder.generateLayoutFileName(it) to "//HASH-XML ${
+                readContentHash(it)
+            }"
+        }
+        return if(generatedFiles.keys.containsAll(sourcesMap.keys)){
+            sourcesMap.map {
+                generatedFiles[it.key] == it.value
+            }.any { !it }
+        }else{
+            File("/tmp/___/output").appendText("\n--" +
+                    "${generatedFiles.keys.none { g -> sourcesMap.keys.any { g == it } }}")
+             true
+        }
+  }
+
+    fun readContentHash(file: File): String =
+        file.readText().sha1()
+
+    /**
+     * Hashing Utils
+     * @author Sam Clarke <www.samclarke.com>
+     * @license MIT
+     */
+    object HashUtils {
+        fun String.sha512() = hashString("SHA-512", this)
+
+        fun String.sha256() = hashString("SHA-256", this)
+
+        fun String.sha1() = hashString("SHA-1", this)
+
+        /**
+         * Supported algorithms on Android:
+         *
+         * Algorithm	Supported API Levels
+         * MD5          1+
+         * SHA-1	    1+
+         * SHA-224	    1-8,22+
+         * SHA-256	    1+
+         * SHA-384	    1+
+         * SHA-512	    1+
+         */
+        private fun hashString(type: String, input: String): String {
+            val HEX_CHARS = "0123456789ABCDEF"
+            val bytes = MessageDigest
+                .getInstance(type)
+                .digest(input.toByteArray())
+            val result = StringBuilder(bytes.size * 2)
+
+            bytes.forEach {
+                val i = it.toInt()
+                result.append(HEX_CHARS[i shr 4 and 0x0f])
+                result.append(HEX_CHARS[i and 0x0f])
+            }
+
+            return result.toString()
         }
     }
 
 
     override fun finish() {
-        codeWriter.write(true)
+
     }
 
     private val File.xmlInfo: XmlInfo

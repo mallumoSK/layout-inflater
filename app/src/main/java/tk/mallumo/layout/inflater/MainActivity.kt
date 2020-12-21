@@ -8,18 +8,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class VM : ViewModel() {
     val namexyz = MutableStateFlow("flowInitValue")
 }
 
 @SuppressLint("SetTextI18n")
-@OptIn(ExperimentalCoroutinesApi::class)
 class MainActivity : AppCompatActivity() {
 
     val vm by lazy {
@@ -29,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     val layout by lazyLayout<LayoutActivityMain> {
         incLayout.veverka.text = "Included layout after inflate"
 
-        flow(vm.namexyz) { veverka.text = it }
+//        flow(vm.namexyz) { veverka.text = it }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
