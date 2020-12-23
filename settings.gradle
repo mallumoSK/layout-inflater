@@ -10,6 +10,9 @@ pluginManagement {
             if ("org.jetbrains.kotlin.ksp".equals(requested.id.id)) {
                 useModule("org.jetbrains.kotlin:kotlin-ksp:${requested.version}")
             }
+            if ("symbol-processing".equals(requested.id.id)){
+                useModule("com.google.devtools.ksp:symbol-processing:${requested.version}")
+            }
         }
     }
     repositories {

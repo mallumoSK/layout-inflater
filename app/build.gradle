@@ -1,13 +1,14 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id("kotlin-ksp") version "1.4.0-dev-experimental-20200914"
+//    id("kotlin-ksp") version "1.4.0-dev-experimental-20200914"
+    id("symbol-processing") version "1.4.20-dev-experimental-20201204"
 }
 
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "tk.mallumo.layout.inflater"

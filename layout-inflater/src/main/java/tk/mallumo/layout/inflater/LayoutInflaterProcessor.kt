@@ -1,9 +1,10 @@
 package tk.mallumo.layout.inflater
 
-import org.jetbrains.kotlin.ksp.processing.CodeGenerator
-import org.jetbrains.kotlin.ksp.processing.KSPLogger
-import org.jetbrains.kotlin.ksp.processing.Resolver
-import org.jetbrains.kotlin.ksp.processing.SymbolProcessor
+
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
 import tk.mallumo.layout.inflater.LayoutInflaterProcessor.HashUtils.sha1
@@ -14,6 +15,8 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 
 class LayoutInflaterProcessor : SymbolProcessor {
+
+    private lateinit var logger: KSPLogger
 
     /**
      * helper of file/class management
@@ -49,9 +52,10 @@ class LayoutInflaterProcessor : SymbolProcessor {
     override fun init(
         options: Map<String, String>,
         kotlinVersion: KotlinVersion,
-        codeGenerator: CodeGenerator,
+        codeGenerator: CodeGenerator ,
         logger: KSPLogger
     ) {
+        this.logger = logger
         this.options = options
         this.packageName =
             options["LayoutInflaterAppPackage"] ?: throw RuntimeException(errProjectPackageName)
@@ -141,8 +145,9 @@ class LayoutInflaterProcessor : SymbolProcessor {
                 generatedFiles[it.key] == it.value
             }.any { !it }
         }else{
+            logger.info( "${generatedFiles.keys.filterNot { g -> sourcesMap.keys.any { g == it } }}")
             File("/tmp/___/output").appendText("\n--" +
-                    "${generatedFiles.keys.none { g -> sourcesMap.keys.any { g == it } }}")
+                    "${generatedFiles.keys.filterNot { g -> sourcesMap.keys.any { g == it } }}")
              true
         }
   }
