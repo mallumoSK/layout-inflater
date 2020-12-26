@@ -117,7 +117,7 @@ just pass ``ksp.arg("LayoutInflaterFlow", "false")`` on bottom of ``build.gradle
 
 
 ## WARNING
-This library/processor is ussing [Kotlin Symbol Processor](https://github.com/android/kotlin/tree/ksp/libraries/tools/kotlin-symbol-processing-api).
+This library/processor is ussing [Kotlin Symbol Processing API](https://github.com/google/ksp).
 
 This is in testing unstable stage.
 
@@ -147,7 +147,7 @@ Usage in production in on your risk.
 1. add plugin (**build.gradle**)
 ```groovy
 plugins {
-    id("kotlin-ksp") version "1.4.0-dev-experimental-20200914"
+    id("symbol-processing") version "1.4.20-dev-experimental-20201204"
 }
 //...
 android{
@@ -167,22 +167,13 @@ dependencies {
 pluginManagement {
     resolutionStrategy {
         eachPlugin {
-            if ("kotlin-ksp".equals(requested.id.id)) {
-                useModule("org.jetbrains.kotlin:kotlin-ksp:${requested.version}")
-            }
-            if ("org.jetbrains.kotlin.kotlin-ksp".equals(requested.id.id)) {
-                useModule("org.jetbrains.kotlin:kotlin-ksp:${requested.version}")
-            }
-            if ("org.jetbrains.kotlin.ksp".equals(requested.id.id)) {
-                useModule("org.jetbrains.kotlin:kotlin-ksp:${requested.version}")
+            if ("symbol-processing".equals(requested.id.id)){
+                useModule("com.google.devtools.ksp:symbol-processing:${requested.version}")
             }
         }
     }
     repositories {
         gradlePluginPortal()
-        maven {
-            url = "https://dl.bintray.com/kotlin/kotlin-eap"
-        }
         google()
     }
 }

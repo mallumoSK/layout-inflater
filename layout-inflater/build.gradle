@@ -6,7 +6,7 @@ plugins {
 group 'tk.mallumo'
 version "$layout_inflater_version"
 
-//apply from: "../secure.gradle"
+apply from: "../secure.gradle"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_7
