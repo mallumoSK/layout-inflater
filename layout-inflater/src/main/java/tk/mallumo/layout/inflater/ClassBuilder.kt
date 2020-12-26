@@ -67,7 +67,7 @@ ${items.joinToString("\n") { it.inflationRow }}
 
     private val ClassDef.inflationRow: String
         get() = buildString {
-            val name = xmlInfo.name.layoutFileName
+            val name = xmlInfo.name.layoutFileName()
             append("\t\t")
             append("$name::class -> $name.inflate(layoutInflater,root,attachToRoot,lifecycle)")
         }
@@ -138,7 +138,7 @@ abstract class ImplLayoutInflater : LifecycleObserver {
 
         val fields = xmlInfo.inflaterFields
 
-        val name = xmlInfo.name.layoutFileName
+        val name = xmlInfo.name.layoutFileName()
         return ClassDef(
             contentOrigin = file.readText(),
             fileName = "$name.kt",
@@ -255,16 +255,19 @@ ${
         }
 
 
-    fun generateLayoutFileName(file: File):String = file.name.split(".").first().layoutFileName
-    private val String.layoutFileName
-        get() = split("_")
+    fun generateLayoutFileName(file: File, addPrefix:Boolean = true):String = file.name.split(".")
+        .first().layoutFileName(addPrefix)
+    private fun String.layoutFileName(addPrefix:Boolean = true) = split("_")
             .joinToString("") {
                 when {
                     it.isEmpty() -> ""
                     it.length == 1 -> it[0].toUpperCase().toString()
                     else -> "${it[0].toUpperCase()}${it.substring(1)}"
                 }
-            }.let { "Layout$it" }
+            }.let {
+                if(addPrefix) "Layout$it"
+                else it
+            }
 
 
     private fun XmlNode.asLayoutInflaterField(): LayoutInflaterField? {
@@ -273,7 +276,7 @@ ${
                 name == "include" -> {
                     LayoutInflaterField(
                         id = id,
-                        inflaterName = layout.layoutFileName
+                        inflaterName = layout.layoutFileName()
                     )
                 }
                 name == "WebView" -> {

@@ -136,6 +136,7 @@ $builder"""
 
     }
 
+    private val libDirectory get() = File("${directory.absolutePath}/${rootPackage.replace(".", "/")}")
     /**
      * This function must be called after all code is generated and ready for writing,
      *
@@ -145,7 +146,6 @@ $builder"""
      * * write new files
      */
     fun write(deleteOld: Boolean) {
-        val libDirectory = File("${directory.absolutePath}/${rootPackage.replace(".", "/")}")
         val oldFiles = libDirectory.walkTopDown().filter { it.isFile }.toList()
         val generated = builders.values.map { it.values }.flatten()
         val newFile = generated.map { it.file(directory) }
@@ -160,7 +160,16 @@ $builder"""
         }
     }
 
-    fun filesInDirectory(): Array<File> {
-       return File("${directory.absolutePath}/${rootPackage.replace(".", "/")}").listFiles()?: arrayOf()
+    fun writeTmpFile(name:String, body:String) {
+        File(libDirectory, name).writeText(body)
+    }
+
+    fun readTmpFile(name:String):String =try {
+        File(libDirectory, name).readText()
+    }catch (e:Exception){""}
+
+    fun filesInDirectory(): List<File> {
+       return File("${directory.absolutePath}/${rootPackage.replace(".", "/")}")
+           .listFiles()?.toList()?: listOf()
     }
 }
