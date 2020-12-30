@@ -18,7 +18,7 @@ class TestGenerator {
             rootPackage = "tk.mallumo.layout.inflater"
         )
     }
-    @Test
+//    @Test
     fun fileCompare(){
 
         println("............")
@@ -32,7 +32,7 @@ class TestGenerator {
 
     }
 
-    @Test
+//    @Test
     fun fileStructureChanged(){
         println("............")
         val generatedFiles = generatedKtFiles
