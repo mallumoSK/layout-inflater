@@ -1,5 +1,5 @@
 
-ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/src/main/ksp")
+ksp.arg("LayoutInflaterSrcOut", "${projectDir.absolutePath}/build/generated/ksp/debug")
 ksp.arg("LayoutInflaterResIn", "${projectDir.absolutePath}/src/main/res")
 ksp.arg("LayoutInflaterAppPackage", android.defaultConfig.applicationId)
 ksp.arg("LayoutInflaterFlow", "true")
