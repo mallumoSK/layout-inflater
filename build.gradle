@@ -2,7 +2,7 @@
 buildscript {
 
     ext.kotlin_version = "1.4.21"
-    ext.layout_inflater_version = '0.1.0'
+    ext.layout_inflater_version = '0.1.1'
 
     repositories {
         google()

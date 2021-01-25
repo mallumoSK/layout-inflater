@@ -9,14 +9,14 @@ version "$layout_inflater_version"
 apply from: "../secure.gradle"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 //    implementation "org.jetbrains.kotlin:kotlin-symbol-processing-api:$ksp_version"
-    implementation 'com.google.devtools.ksp:symbol-processing:1.4.20-dev-experimental-20201204'
+    implementation "com.google.devtools.ksp:symbol-processing:1.4.20-dev-experimental-20201222"
 //    implementation("com.google.devtools.ksp:symbol-processing-api:1.4.20-dev-experimental-20201204")
     testImplementation 'junit:junit:4.13.1'
 }

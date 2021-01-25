@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id("symbol-processing") version "1.4.20-dev-experimental-20201204"
+    id("symbol-processing") version "1.4.20-dev-experimental-20201222"
 }
 
 
