@@ -23,6 +23,8 @@ class LayoutInflaterProcessor : SymbolProcessor {
 
     private lateinit var packageName: String
 
+    private lateinit var resourceDirectory: File
+
     companion object {
         /**
          * error info, if is gradle file modified
@@ -59,10 +61,16 @@ class LayoutInflaterProcessor : SymbolProcessor {
     }
 
     // https://developer.android.com/training/improving-layouts/loading-ondemand
-    override fun process(resolver: Resolver){
-        val resourceDirectory =
+
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        resourceDirectory =
             File(options["LayoutInflaterResIn"] ?: throw RuntimeException(errProjectInDir))
         if (!resourceDirectory.exists()) throw RuntimeException("project resources directory not exists (${resourceDirectory.absolutePath})")
+
+        return emptyList()
+    }
+
+    override fun finish() {
         val isFlowEnabled = (options["LayoutInflaterFlow"] ?: "true").toBoolean()
 
         val sourceFiles = DataTransform.readXmlLayoutFiles(resourceDirectory)
@@ -103,8 +111,5 @@ class LayoutInflaterProcessor : SymbolProcessor {
             codeWriter.write(deleteOld = true)
             codeWriter.writeTmpFile("hash.tmp", xmlHash)
         }
-    }
-
-    override fun finish() {
     }
 }

@@ -147,40 +147,40 @@ Usage in production in on your risk.
 1. add plugin (**build.gradle**)
 ```groovy
 plugins {
-    id("symbol-processing") version "1.4.20-dev-experimental-20201204"
+  id("com.google.devtools.ksp") version "1.4.30-1.0.0-alpha02"
 }
 //...
 android{
     //...
+   sourceSets.main.java.srcDirs += ['build/generated/ksp/debug/kotlin']
 }
 //...
-apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-config.gradle'
-apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
+//this dile dowload to local machine (faster build)
+//apply from: 'https://raw.githubusercontent.com/mallumoSK/layout-inflater/main/ksp-layout-inflater.gradle'
+//then
+apply from: '../ksp-layout-inflater.gradle'
+
+repositories {
+  maven {
+    url = uri("https://mallumo.jfrog.io/artifactory/gradle-dev-local")
+  }
+  google()
+}
 
 dependencies {
     ksp "tk.mallumo:layout-inflater:x.y.z"
 }
 ```
 
-2. add pluginResolutionStrategy On top of file **settings.gradle** add this:
+2. add pluginManagement **On top** of file **settings.gradle** :
 ```groovy
 pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if ("symbol-processing".equals(requested.id.id)){
-                useModule("com.google.devtools.ksp:symbol-processing:${requested.version}")
-            }
-        }
-    }
-    repositories {
-        gradlePluginPortal()
-        google()
-    }
+  repositories {
+    gradlePluginPortal()
+    google()
+  }
 }
 ```
 
 3. JOB DONE :)
-
-## More info will bee soon currently is library in development
-
 
